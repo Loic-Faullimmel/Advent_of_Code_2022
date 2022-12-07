@@ -15,14 +15,9 @@ Used langage: **Typescript**.
    npm i
    ```
 4. Go to `./Advent_of_Code_2022/src/`,
-5. If code has been edited, run:
+5. Run:
    ```
-   tsc day-[x].ts
-   ```
-   > Replace `[x]` by the day number to select.
-6. Run:
-   ```
-   node day-[x].js
+   tsc day-[x].ts && node day-[x].js
    ```
    > Replace `[x]` by the day number to select.
 7. Wait, then the output result must appear in the console !
