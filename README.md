@@ -1,14 +1,15 @@
 # Advent of code 2022, my participation !
 
 Tournament website: https://adventofcode.com/2022
-Used langage: **Typescript**.
+
+Used langage: **Typescript**
 
 ## Try my code
-### Required
+### Requirements
 - NodeJS *(14 || 16)*
 - NPM
 
-### Execute it
+### Launch it
 1. Clone the project on your local host,
 2. Go to `./Advent_of_Code_2022/`,
 3. Run:
@@ -21,4 +22,4 @@ Used langage: **Typescript**.
    tsc day-[x].ts && node day-[x].js
    ```
    > Replace `[x]` by the day number to select.
-7. Wait, then the output result must appear in the console !
+6. Wait, then the output result must appear in the console !
