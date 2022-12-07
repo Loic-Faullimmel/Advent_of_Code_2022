@@ -1,131 +1,131 @@
 import * as fs from "fs";
+export class RockPaperScissors {
+  // Arrange
+  readonly guide = fs.readFileSync("../assets/day-2.txt", "utf8");
+  readonly guideLines = this.guide.split("\r\n").map((line) => line.split(" "));
 
-// Arrange
-const guide = fs.readFileSync("../assets/day-2.txt", "utf8");
-const guideLines = guide.split("\r\n").map((line) => line.split(" "));
+  // Part 1
+  readonly hisShapesMap: ReadonlyMap<string, Shape> = new Map([
+    ["A", Rock],
+    ["B", Paper],
+    ["C", Scissors],
+  ]);
+  readonly myShapesMap: ReadonlyMap<string, Shape> = new Map([
+    ["X", Rock],
+    ["Y", Paper],
+    ["Z", Scissors],
+  ]);
+  
+  // Part 2
+  readonly myResultsMap: ReadonlyMap<string, ResultType> = new Map([
+    ["X", ResultType.LOSE],
+    ["Y", ResultType.DRAW],
+    ["Z", ResultType.WIN],
+  ]);
 
-enum Shape {
+  constructor() {}
+
+  /**
+   * Part 1
+   */
+  matchHandler1(hisShape: Shape, myShape: Shape): number {
+    let myScore = myShape.value;
+
+    if (hisShape === myShape) {
+      myScore += ResultType.DRAW;
+    }
+    else if (myShape.superior() === hisShape) {
+      myScore += ResultType.LOSE;
+    }
+    else if (myShape.inferior() === hisShape) {
+      myScore += ResultType.WIN;
+    }
+
+    return myScore;
+  }
+  
+  /**
+   * Part 2
+   */
+  matchHandler2(hisShape: Shape, neededResult: ResultType): number {
+    let myShape;
+
+    if (neededResult === ResultType.DRAW) {
+      myShape = hisShape;
+    } else if (neededResult === ResultType.LOSE) {
+      myShape = hisShape.inferior();
+    } else if (neededResult === ResultType.WIN) {
+      myShape = hisShape.superior();
+    }
+
+    return neededResult + (myShape?.value || 0);
+  }
+
+  // Act
+  play(part: "part1" | "part2"): void {
+    let myTotalScore = 0;
+    let myMap: ReadonlyMap<string, any>;
+    let handler: (_: Shape, __: any) => number;
+
+    if (part === "part1") {
+      myMap = this.myShapesMap;
+      handler = this.matchHandler1;
+    } else if (part === "part2") {
+      myMap = this.myResultsMap;
+      handler = this.matchHandler2;
+    }
+
+    this.guideLines.forEach(([hisChar, myChar]) => {
+      let hisShape;
+      let mine;
+
+      if (this.hisShapesMap.has(hisChar) && myMap.has(myChar)) {
+          hisShape = this.hisShapesMap.get(hisChar);
+          mine = myMap.get(myChar);
+      } else {
+          throw new Error("File decryption failed.");
+      }
+
+      myTotalScore += handler(hisShape, mine);
+    });
+
+    console.log('My total score:', myTotalScore);
+  }
+}
+
+// ----- TYPES -----
+
+export enum ShapeType {
   ROCK = 1, // score value
   PAPER = 2, 
   SCISSORS = 3
 }
-enum Result {
+export enum ResultType {
   WIN = 6,
   LOSE = 0,
   DRAW = 3
 }
-
-// Part 1
-const hisShapesMap: ReadonlyMap<string, Shape> = new Map([
-  ["A", Shape.ROCK],
-  ["B", Shape.PAPER],
-  ["C", Shape.SCISSORS],
-]);
-const myShapesMap: ReadonlyMap<string, Shape> = new Map([
-  ["X", Shape.ROCK],
-  ["Y", Shape.PAPER],
-  ["Z", Shape.SCISSORS],
-]);
-// Part 2
-const myResultsMap: ReadonlyMap<string, Result> = new Map([
-  ["X", Result.LOSE],
-  ["Y", Result.DRAW],
-  ["Z", Result.WIN],
-]);
-
-// Part 1
-function matchHandler1(hisShape: Shape, myShape: Shape): number {
-  let myScore = 0;
-
-  myScore += myShape;
-
-  if (hisShape === myShape) {
-    myScore += Result.DRAW;
-  } else {
-    switch (myShape) {
-      case Shape.ROCK:
-        hisShape === Shape.SCISSORS 
-            ? (myScore += Result.WIN) 
-            : (myScore += Result.LOSE);
-        break;
-      case Shape.PAPER:
-        hisShape === Shape.ROCK 
-            ? (myScore += Result.WIN) 
-            : (myScore += Result.LOSE);
-        break;
-      case Shape.SCISSORS:
-        hisShape === Shape.PAPER 
-            ? (myScore += Result.WIN) 
-            : (myScore += Result.LOSE);
-        break;
-    }
-  }
-
-  return myScore;
+export abstract class Shape {
+  value: number;
+  superior: () => Shape;
+  inferior: () => Shape;
 }
-// Part 2
-function matchHandler2(hisShape: Shape, neededResult: Result): number {
-  let myScore = 0;
-  let myShape: Shape | undefined;
-
-  myScore += neededResult;
-
-    switch (hisShape) {
-      case Shape.ROCK:
-        if (neededResult === Result.WIN)
-          myShape = Shape.PAPER;
-        if (neededResult === Result.LOSE)
-          myShape = Shape.SCISSORS;
-        if (neededResult === Result.DRAW)
-          myShape = Shape.ROCK;
-        break;
-      case Shape.PAPER:
-        if (neededResult === Result.WIN)
-          myShape = Shape.SCISSORS;
-        if (neededResult === Result.LOSE)
-          myShape = Shape.ROCK;
-        if (neededResult === Result.DRAW)
-          myShape = Shape.PAPER;
-        break;
-      case Shape.SCISSORS:
-        if (neededResult === Result.WIN)
-          myShape = Shape.ROCK;
-        if (neededResult === Result.LOSE)
-          myShape = Shape.PAPER;
-        if (neededResult === Result.DRAW)
-          myShape = Shape.SCISSORS;
-        break;
-  }
-
-  if (myShape)
-    myScore += myShape;
-
-  return myScore;
+export class Rock extends Shape {
+  static value = ShapeType.ROCK;
+  static superior = () => Paper;
+  static inferior = () => Scissors;
+}
+export class Paper extends Shape {
+  static value = ShapeType.PAPER;
+  static superior = () => Scissors;
+  static inferior = () => Rock;
+}
+export class Scissors extends Shape {
+  static value = ShapeType.SCISSORS;
+  static superior = () => Rock;
+  static inferior = () => Paper;
 }
 
-// Act
-function main(hisEncryptedMap: ReadonlyMap<string, any>, myEncryptedMap: ReadonlyMap<string, any>, matchHandler: (...args) => number): void {
-  let myTotalScore = 0;
 
-  guideLines.forEach(([hisEncryptedLetter, myEncryptedLetter]) => {
-    let hisShape;
-    let mine;
-
-    if (hisEncryptedMap.has(hisEncryptedLetter) && myEncryptedMap.has(myEncryptedLetter)) {
-        hisShape = hisEncryptedMap.get(hisEncryptedLetter);
-        mine = myEncryptedMap.get(myEncryptedLetter);
-    } else {
-        throw new Error("File decryption failed.");
-    }
-
-    myTotalScore += matchHandler(hisShape, mine);
-  });
-
-  console.log('My total score:', myTotalScore);
-}
-
-// Part 1
-// main(hisShapesMap, myShapesMap, matchHandler1);
-
-// Part 2
-main(hisShapesMap, myResultsMap, matchHandler2);
+// ----- MAIN -----
+new RockPaperScissors().play("part2");
