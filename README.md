@@ -2,7 +2,7 @@
 
 Tournament website: https://adventofcode.com/2022
 
-Used langage: **Typescript**
+Used langage: **Typescript** or Python.
 
 ## Try my code
 ### Requirements
